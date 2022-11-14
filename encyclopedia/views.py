@@ -27,3 +27,27 @@ def entry(request, title):
             "title": title,
             "content": html_content
         })
+        
+def search(request):
+    if request.method == "POST":
+        search_entry = request.POST['q']
+        html_content = md_to_html(search_entry)
+        if html_content is not None:
+            return render(request, "encyclopedia/entry.html", {
+                "title": search_entry,
+                "content": html_content
+            })
+        else:
+            recommendation = []
+            allEntries = util.list_entries()
+            for entry in allEntries:
+                if search_entry.lower() in entry.lower():
+                    recommendation.append(entry)
+            if bool(recommendation):
+                return render(request, "encyclopedia/search.html", {
+                    "recommendation": recommendation
+                })
+            else:
+                return render(request, "encyclopedia/error.html", {
+                "error": "No such entry exists"
+                })
